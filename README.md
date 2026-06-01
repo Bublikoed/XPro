@@ -175,14 +175,15 @@ XPro/
 ### Категорії (`/category`)
 
 - Рекурсивні шляхи у полі **`full_path`** (`Для мотоцикліста > Аксесуари > Рюкзаки`).
-- Сортування за повним шляхом: `sort_by_name=asc|desc`.
-- Пошук і фільтри за id, назвою, статусом; пагінація `page` / `limit`.
+- За замовчуванням список у **порядку дерева** (батько → діти; брати за `category_id`).
+- Сортування: `sort_by_name=asc|desc` (алфавіт по повному шляху), `sort_by_id=asc|desc`.
+- Пошук за id, статусом; `search_name` — по сегменту назви або повному шляху; пагінація `page` / `limit`.
 - Каскадне видалення підкатегорій при `DELETE /category/{id}`.
 - Автоматичні `date_added` / `date_modify` (MySQL `CURRENT_TIMESTAMP`).
 
 ### Товари (`/product`)
 
-- Список: `product_id`, `name`, `categories` (повні шляхи), `price`.
+- Список: `product_id`, `name`, `category` (повний шлях), `price`.
 - CRUD; при створенні — лише **назва** обов’язкова, **статус 0** за замовчуванням.
 - Вкладені CRUD: `image`, `attribute`, `category` (за `product_category_id`), **store**.
 - Деталізація: виробник (`manufacturer`), магазини з назвами, категорії з `full_path`.

@@ -40,6 +40,51 @@ class CategoryService:
         )
 
     @staticmethod
+    def _sort_tree_preorder(
+        categories: List[Category],
+        all_categories_dict: dict[int, Category],
+    ) -> List[Category]:
+        """Обхід дерева: батько → діти; серед братів — за category_id (як у прикладі ТЗ)."""
+        by_id = {cat.category_id: cat for cat in categories}
+        ids_in_result = set(by_id.keys())
+
+        children_by_parent: dict[int, list[int]] = {}
+        for cat in all_categories_dict.values():
+            parent_id = cat.parent_category_id or 0
+            if parent_id != 0 and parent_id not in all_categories_dict:
+                parent_id = 0
+            children_by_parent.setdefault(parent_id, []).append(cat.category_id)
+
+        for sibling_ids in children_by_parent.values():
+            sibling_ids.sort()
+
+        ordered: List[Category] = []
+        visited: set[int] = set()
+
+        def visit(parent_id: int) -> None:
+            for cid in children_by_parent.get(parent_id, []):
+                if cid in ids_in_result and cid not in visited:
+                    ordered.append(by_id[cid])
+                    visited.add(cid)
+                visit(cid)
+
+        visit(0)
+
+        for cat in sorted(categories, key=lambda c: c.category_id):
+            if cat.category_id not in visited:
+                ordered.append(cat)
+
+        return ordered
+
+    @staticmethod
+    def _matches_name_search(category: Category, search_name: str) -> bool:
+        needle = search_name.casefold()
+        full_path = (category.full_path or category.name).casefold()
+        if needle in full_path:
+            return True
+        return needle in category.name.casefold()
+
+    @staticmethod
     async def async_get_all_categories(
         db: AsyncSession,
         search_id: Optional[int] = None,
@@ -54,8 +99,6 @@ class CategoryService:
 
         if search_id is not None:
             query = query.where(Category.category_id == search_id)
-        if search_name is not None:
-            query = query.where(Category.name.ilike(f"%{search_name}%"))
         if status_filter is not None:
             query = query.where(Category.status == status_filter)
 
@@ -66,6 +109,13 @@ class CategoryService:
         for cat in categories_list:
             cat.full_path = CategoryService._build_full_path(cat, all_categories_dict)
 
+        if search_name is not None:
+            categories_list = [
+                cat
+                for cat in categories_list
+                if CategoryService._matches_name_search(cat, search_name)
+            ]
+
         if sort_by_name_direction == "asc":
             categories_list.sort(key=lambda x: x.full_path)
         elif sort_by_name_direction == "desc":
@@ -75,7 +125,9 @@ class CategoryService:
         elif sort_by_id_direction == "desc":
             categories_list.sort(key=lambda x: x.category_id, reverse=True)
         else:
-            categories_list.sort(key=lambda x: x.full_path)
+            categories_list = CategoryService._sort_tree_preorder(
+                categories_list, all_categories_dict
+            )
 
         start_index = (page - 1) * limit
         end_index = start_index + limit

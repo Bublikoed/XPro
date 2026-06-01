@@ -12,7 +12,9 @@ router = APIRouter(prefix="/category", tags=["Категорії (Category)"])
 @router.get("", response_model=List[CategoryListItem])
 async def get_categories(
     search_id: Optional[int] = Query(None, description="Пошук за ID"),
-    search_name: Optional[str] = Query(None, description="Пошук за назвою"),
+    search_name: Optional[str] = Query(
+        None, description="Пошук за назвою (сегмент або повний шлях категорії)"
+    ),
     status_filter: Optional[str] = Query(None, description="Фільтрація за статусом ('1' або '0')"),
     sort_by_name: Optional[str] = Query(None, description="Сортування за алфавітом структури ('asc' або 'desc')"),
     sort_by_id: Optional[str] = Query(None, description="Сортування за ID ('asc' або 'desc')"),

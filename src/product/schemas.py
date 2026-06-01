@@ -80,7 +80,7 @@ class ProductCategoryLinkResponse(BaseModel):
 class ProductListItem(BaseModel):
     product_id: int
     name: str
-    categories: List[str] = Field(default_factory=list, description="Повні шляхи категорій")
+    category: str = Field(default="", description="Категорія товару (повний шлях)")
     price: float
 
 

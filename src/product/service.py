@@ -170,15 +170,13 @@ class ProductService:
 
         items: List[ProductListItem] = []
         for prod in page_products:
-            paths = [
-                CategoryService._build_full_path(cat, all_categories_dict)
-                for cat in prod.categories
-            ]
             items.append(
                 ProductListItem(
                     product_id=prod.product_id,
                     name=prod.name,
-                    categories=paths,
+                    category=ProductService._primary_category_path(
+                        prod, all_categories_dict
+                    ),
                     price=prod.price,
                 )
             )
