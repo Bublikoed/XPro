@@ -160,7 +160,7 @@ class CategoryService:
         if not category:
             return None
 
-        data_dict = update_data.model_dump(exclude_unset=True)
+        data_dict = update_data.model_dump(exclude_unset=True, exclude_none=True)
         for key, value in data_dict.items():
             setattr(category, key, value)
 

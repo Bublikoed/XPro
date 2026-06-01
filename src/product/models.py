@@ -104,7 +104,7 @@ class Product(Base):
     model: Mapped[str] = mapped_column(String(255), nullable=False, default="", server_default=text("''"))
     price: Mapped[float] = mapped_column(Float, nullable=False, default=0.0, server_default=text("0"))
     manufacturer_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey("manufacturer.manufacturer_id", ondelete="SET NULL"), nullable=True
+        Integer, nullable=False, default=0, server_default=text("0")
     )
     rating: Mapped[float] = mapped_column(Float, default=0.0, server_default=text("0"))
     viewed: Mapped[int] = mapped_column(Integer, default=0, server_default=text("0"))
@@ -125,7 +125,12 @@ class Product(Base):
         onupdate=datetime.now,
     )
 
-    manufacturer: Mapped[Optional["Manufacturer"]] = relationship("Manufacturer")
+    manufacturer: Mapped[Optional["Manufacturer"]] = relationship(
+        "Manufacturer",
+        primaryjoin="and_(Product.manufacturer_id == Manufacturer.manufacturer_id, Product.manufacturer_id != 0)",
+        foreign_keys="Product.manufacturer_id",
+        viewonly=True,
+    )
     categories: Mapped[List["Category"]] = relationship(
         "Category",
         secondary="product_category",

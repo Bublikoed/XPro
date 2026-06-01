@@ -100,12 +100,12 @@ docker compose run --rm seed
 
 ## Тестування API через Postman
 
-У корені репозиторію лежить готова колекція **`FastAPI_Shop.postman_collection.json`** — усі ендпоінти з OpenAPI (модулі **category**, **product**, **healthcheck**).
+У корені репозиторію лежить готова колекція **`FastAPI.postman_collection.json`** — усі ендпоінти з OpenAPI (модулі **category**, **product**, **healthcheck**).
 
 ### Імпорт
 
 1. Встановіть [Postman](https://www.postman.com/downloads/) (Desktop або веб).
-2. **Import** → оберіть файл `FastAPI_Shop.postman_collection.json` з клонованого репозиторію.
+2. **Import** → оберіть файл `FastAPI.postman_collection.json` з клонованого репозиторію.
 3. Відкрийте колекцію **FastAPI_Shop** → вкладка **Variables**.
 4. Встановіть змінну **`baseUrl`**:
 
@@ -116,6 +116,7 @@ docker compose run --rm seed
    (У файлі за замовчуванням може бути `/` — для локального Docker потрібен повний URL.)
 
 5. Запустіть `docker compose up -d` і `docker compose run --rm seed`, потім виконуйте запити з колекції.
+6. У Postman: **Collection Runner** на папці `category`, потім на `product` (змінні `catId`, `prodId` підставляються автоматично). Після seed `manufacturerId` зазвичай `1` (див. Variables колекції).
 
 > **Порада:** після сідера підставляйте реальні `category_id` / `product_id` з відповіді `GET /category` або phpMyAdmin — у прикладах колекції можуть бути довільні значення-заглушки.
 
@@ -156,7 +157,8 @@ XPro/
 ├── docker-compose.yml    # web, db, phpmyadmin, seed
 ├── Dockerfile
 ├── env.example                          # шаблон змінних (копіювати в .env)
-├── FastAPI_Shop.postman_collection.json # Postman: category, product, healthcheck
+├── FastAPI.postman_collection.json       # Postman (catId, prodId, Collection Runner)
+├── scripts/build_postman_collection.py   # перегенерація колекції
 ├── .gitignore                           # .env, __pycache__, .DS_Store
 ├── README.md
 └── src/

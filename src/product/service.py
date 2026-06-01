@@ -88,7 +88,7 @@ class ProductService:
             image=product.image,
             price=product.price,
             model=product.model or "",
-            manufacturer_id=product.manufacturer_id,
+            manufacturer_id=product.manufacturer_id or None,
             status=product.status,
             status_label=product_status_label(product.status),
             rating=product.rating,
@@ -198,8 +198,8 @@ class ProductService:
         payload = product_data.model_dump(
             exclude={"category_ids", "store_ids", "images", "attributes"}
         )
-        if payload.get("manufacturer_id") == 0:
-            payload["manufacturer_id"] = None
+        if payload.get("manufacturer_id") is None:
+            payload["manufacturer_id"] = 0
 
         new_product = Product(**payload)
         db.add(new_product)
@@ -230,9 +230,9 @@ class ProductService:
         if not product:
             return None
 
-        data_dict = update_data.model_dump(exclude_unset=True)
-        if data_dict.get("manufacturer_id") == 0:
-            data_dict["manufacturer_id"] = None
+        data_dict = update_data.model_dump(exclude_unset=True, exclude_none=True)
+        if "manufacturer_id" in data_dict and data_dict["manufacturer_id"] is None:
+            data_dict["manufacturer_id"] = 0
         for key, value in data_dict.items():
             setattr(product, key, value)
 

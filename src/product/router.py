@@ -148,7 +148,7 @@ async def update_product_image(
     img = result.scalar_one_or_none()
     if not img:
         raise HTTPException(status_code=404, detail="Зображення не знайдено")
-    for key, value in update_data.model_dump(exclude_unset=True).items():
+    for key, value in update_data.model_dump(exclude_unset=True, exclude_none=True).items():
         setattr(img, key, value)
     await db.commit()
     await db.refresh(img)
@@ -235,7 +235,7 @@ async def update_product_attribute(
     attr = result.scalar_one_or_none()
     if not attr:
         raise HTTPException(status_code=404, detail="Атрибут не знайдено")
-    for key, value in update_data.model_dump(exclude_unset=True).items():
+    for key, value in update_data.model_dump(exclude_unset=True, exclude_none=True).items():
         setattr(attr, key, value)
     await db.commit()
     await db.refresh(attr)
