@@ -1,0 +1,65 @@
+services:
+  web:
+    build: .
+    container_name: shop_fastapi_app
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+    env_file:
+      - .env
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: mysql:8.0
+    container_name: shop_mysql_db
+    restart: always
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: shop_password
+      MYSQL_DATABASE: shop_db
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p'shop_password'"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  phpmyadmin:
+    image: phpmyadmin:latest
+    container_name: shop_phpmyadmin
+    restart: always
+    ports:
+      - "8080:80"
+    environment:
+      PMA_HOST: db
+    depends_on:
+      - db
+
+  apache:
+    image: httpd:2.4-alpine
+    container_name: shop_apache
+    ports:
+      - "80:80"
+    volumes:
+      - ./apache/httpd.conf:/usr/local/apache2/conf/httpd.conf:ro
+    depends_on:
+      - web
+
+  seed:
+    build: .
+    env_file:
+      - .env
+    volumes:
+      - .:/app
+    command: python -m src.seed
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  mysql_data:

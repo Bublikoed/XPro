@@ -1,0 +1,10 @@
+# Секретні файли конфігурації
+.env
+
+# Кеш Python
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Системні файли Mac
+.DS_Store
